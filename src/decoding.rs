@@ -84,6 +84,14 @@ impl DecodingKey<'static> {
             kind: DecodingKeyKind::RsaModulusExponent { n: Cow::Owned(n), e: Cow::Owned(e) },
         })
     }
+
+    /// If you know what you're doing and have a RSA EC encoded public key, use this.
+    pub fn from_ec_der(der: &[u8]) -> Result<Self> {
+        Ok(DecodingKey {
+            family: AlgorithmFamily::Ec,
+            kind: DecodingKeyKind::SecretOrDer(Cow::Owned(der.to_vec())),
+        })
+    }
 }
 
 impl<'a> DecodingKey<'a> {
@@ -102,7 +110,7 @@ impl<'a> DecodingKey<'a> {
             kind: DecodingKeyKind::RsaModulusExponent {
                 n: Cow::Borrowed(modulus),
                 e: Cow::Borrowed(exponent),
-             },
+            },
         }
     }
 
@@ -110,14 +118,6 @@ impl<'a> DecodingKey<'a> {
     pub fn from_rsa_der(der: &'a [u8]) -> Self {
         DecodingKey {
             family: AlgorithmFamily::Rsa,
-            kind: DecodingKeyKind::SecretOrDer(Cow::Borrowed(der)),
-        }
-    }
-
-    /// If you know what you're doing and have a RSA EC encoded public key, use this.
-    pub fn from_ec_der(der: &'a [u8]) -> Self {
-        DecodingKey {
-            family: AlgorithmFamily::Ec,
             kind: DecodingKeyKind::SecretOrDer(Cow::Borrowed(der)),
         }
     }
